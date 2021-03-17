@@ -2,6 +2,7 @@
 # bot.py
 
 import os, discord, random, time, wordladderlist
+from word_ladder_solver import get_shortest_route
 from fanshim import FanShim
 
 fanshim = FanShim()
@@ -218,7 +219,23 @@ async def on_message(message):
             await message.channel.send(f'{username}, YOU ALWAYS DO THIS!')
 
   # GAMES - Word ladders and dice rolling
-    if 'word ladder' in message.content.lower():
+    if 'solve word ladder' in message.content.lower():
+        if message.author != client.user:
+            word1, word2 = message.content.lower().split()[-2:]
+            if len(word1) == len(word2) == 4:
+                if word1 not in wordladderlist.words:
+                    response = f'Word "{word1}" does not compute'
+                elif word2 not in wordladderlist.words:
+                    response = f'Word "{word2}" does not compute'
+                else:
+                    response = "PuzzBot has solved this!\n||"
+                    response += join(' ').get_shortest_route(word1, word2)
+                    response += "||"
+            else:
+                response = 'Words must be 4 letters long!'
+            fanshim.set_light(255, 0, 255) # rgb 255
+            await message.channel.send(response)
+    elif 'word ladder' in message.content.lower():
         if message.author != client.user:
             fanshim.set_light(255, 0, 255) # rgb 255
             word1 = random.choice(wordladderlist.words)
@@ -269,7 +286,7 @@ async def on_message(message):
                     print(e)
     if 'bothelp' in message.content.lower():
         await message.channel.send(f'CHECK YOUR MESSAGES FOR MY COMMAND LIST')
-        await message.author.send("COMMAND LIST\n\n🤖 **or PuzzBot**\nPuzzBot will send you a recommendation.\n\n**Name various characters**\nThis is currently set to a 33% to respond to avoid spamming the chat. Puzzie will describe the character.\n\n**Some/It's Been**\nPuzzBot will finish the lyrics.\n\n**Word Ladder**\nPuzzBot will give you two four letters words. Play the game by changing one word into the other by old chaning one letter at a time. Ex. TOOL to MALL, TOOL TOLL TALL MALL. Please use this in the wordladders channel.\n\n**Roll Me...**\nHave PuzzBot roll for you. Ex. roll me 4d6.\n\n**Ted Kennedy Killed That Girl**\nPuzzBot will yell at you.\n\n**Purge**\nOnly mods and developer can use this command.\nEx. \"purge5\" will delete the last 5 messages in a channel.")
+        await message.author.send("COMMAND LIST\n\n🤖 **or PuzzBot**\nPuzzBot will send you a recommendation.\n\n**Name various characters**\nThis is currently set to a 33% to respond to avoid spamming the chat. Puzzie will describe the character.\n\n**Some/It's Been**\nPuzzBot will finish the lyrics.\n\n**Word Ladder**\nPuzzBot will give you two four letters words. Play the game by changing one word into the other by old chaning one letter at a time. Ex. TOOL to MALL, TOOL TOLL TALL MALL. Please use this in the wordladders channel.\n\n**Solve Word Ladder <word1> <word2>\n Puzzbot will solve your word ladder (only 4-letter words)\n\n**Roll Me...**\nHave PuzzBot roll for you. Ex. roll me 4d6.\n\n**Ted Kennedy Killed That Girl**\nPuzzBot will yell at you.\n\n**Purge**\nOnly mods and developer can use this command.\nEx. \"purge5\" will delete the last 5 messages in a channel.")
 
     # LED OFF
     fanshim.set_light(0, 0, 0) # rgb 255
